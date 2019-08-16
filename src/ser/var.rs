@@ -5,6 +5,8 @@ use serde::ser::{self, Serialize, SerializeStruct, SerializeStructVariant};
 use ser::Serializer;
 use error::{Error, Result};
 
+use log::trace;
+
 /// An implementation of `SerializeMap` for serializing to XML.
 pub struct Map<'w, W>
 where
@@ -46,7 +48,7 @@ where
         key: &K,
         value: &V,
     ) -> Result<()> {
-                println!("SerializeMap serialize_entry");
+        trace!("SerializeMap serialize_entry");
         // TODO: Is it possible to ensure our key is never a composite type?
         // Anything which isn't a "primitive" would lead to malformed XML here...
         write!(self.parent.writer, "<")?;
@@ -76,7 +78,7 @@ where
     W: 'w + Write,
 {
     pub fn new(parent: &'w mut Serializer<W>, name: &'w str) -> Struct<'w, W> {
-        println!("Struct:new {}", name);
+        trace!("Struct:new {}", name);
         Struct { parent, name }
     }
 }
@@ -93,7 +95,7 @@ where
         key: &'static str,
         value: &T,
     ) -> Result<()> {
-        println!("SerializeStruct serialize_field {}", key);
+        trace!("SerializeStruct serialize_field {}", key);
         write!(self.parent.writer, "<{}>", key)?;
         value.serialize(&mut *self.parent)?;
         write!(self.parent.writer, "</{}>", key)?;
@@ -119,7 +121,7 @@ where
         key: &'static str,
         value: &T,
     ) -> Result<()> {
-        println!("SerializeStructVariant serialize_field {}", key);
+        trace!("SerializeStructVariant serialize_field {}", key);
         <Self as SerializeStruct>::serialize_field(self, key, value)
     }
 
